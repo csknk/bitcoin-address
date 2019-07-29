@@ -125,4 +125,12 @@ void charToHexString(const char& c, std::string& s)
 	s.append(ss.str());
 }
 
+template <typename T>
+void printHex(T input)
+{
+	for (auto& el : input)
+		std::cout << std::hex << std::setfill('0') << std::setw(2) << (int)el;
+	std::cout << '\n';
+}
+
 } // utilities

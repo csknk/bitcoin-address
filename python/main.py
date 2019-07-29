@@ -33,7 +33,7 @@ def main():
     
     print("checksum is {}".format(checksum.hex()))
     print("hex encoded address is {}".format((prefixed_hash160 + checksum).hex()))
-    print(final)
+    print(final.decode('utf-8'))
 
 if __name__ == '__main__':
     main()

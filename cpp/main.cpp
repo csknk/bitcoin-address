@@ -44,48 +44,36 @@ int main()
 	std::cout << "Enter a hexstring representation of a public key:\n";
 	std::cin >> hexstring;
 	Bytes input;
-	size_t size = hexstring.size() / 2;
 	hexstringToBytes(hexstring, input);
-	std::cout << "Input bytes: " << input.size() << '\n';
 
-	size_t i = 0;
-	for (auto& el : input)
-
-		std::cout << "el " << ++i <<": " << (int)el << '\n';
-
-	Bytes r1(size - 1); // If too big, will contain zero bytes!
-	i = 0;
-	for (auto& el : r1)
-		std::cout << i++ << "r1: " << el << " ";
-	std::cout << '\n';
+	// If too big, will contain zero bytes that will get hashed!
+	Bytes initialSHA256(SHA256_DIGEST_LENGTH);
 	
-	// Alternative: sha256(&input[0], size, r1);
-	sha256(input.data(), size, r1);
+	// Alternative: sha256(&input[0], size, initialSHA256);
+	sha256(input.data(), input.size(), initialSHA256);
 
-	Bytes r2(20);
-	ripemd160(&r1[0], r1.size(), r2);
+	Bytes ripemd160Hash(RIPEMD160_DIGEST_LENGTH);
+	ripemd160(&initialSHA256[0], initialSHA256.size(), ripemd160Hash);
+	printHex(ripemd160Hash);
 
 	// Prepend the version byte
-	r2.insert(std::begin(r2), 0x00);
+	ripemd160Hash.insert(std::begin(ripemd160Hash), 0x00);
 
-	// Perform SHA256 twice and set checksum to the first four bytes of the result.
-	Bytes r3(32);
-	sha256(&r2[0], r2.size(), r3);
-	sha256(&r3[0], r3.size(), r3);
-	Bytes::const_iterator first = r3.begin();
+	// Perform SHA256 twice  - checksum is the first four bytes of the result.
+	Bytes checksumHash(SHA256_DIGEST_LENGTH);
+	sha256(&ripemd160Hash[0], ripemd160Hash.size(), checksumHash);
+	printHex(checksumHash);
+	sha256(&checksumHash[0], checksumHash.size(), checksumHash);
+	printHex(checksumHash);
+	Bytes::const_iterator first = checksumHash.begin();
 	Bytes::const_iterator last = first + 4;
 
-	// Append checksum to r2 (ripemd160 hash)
-	r2.insert(r2.end(), first, last);
+	// Append checksum to ripemd160Hash
+	ripemd160Hash.insert(ripemd160Hash.end(), first, last);
+	printHex(ripemd160Hash);
 	
-	for (auto& el : r2)
-		std::cout << std::hex << std::setw(2) << std::setfill('0') << (int)el;
-	std::cout << '\n';
-	
-	std::string b58 = EncodeBase58(r2); 
-	for (auto& el : b58)
-		std::cout << el;
-	std::cout << '\n';
+	std::string b58 = EncodeBase58(ripemd160Hash); 
+	std::cout << b58 << '\n';
 
 	return 0;
 }
