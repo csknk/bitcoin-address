@@ -14,21 +14,22 @@ Usage:
 
 Run [python/main.py][3].
 
-C++ Implementation
-------------------
+C++ Implementation (Linux)
+--------------------------
 For the purposes of the C++ implementation, I've used `openssl` to provide the necessary hashing functionality.
 
 You can get reasonable information on the `openssl` functions on the Linux man pages - for example enter `man SHA256_Update`.
 
-Note that Bitcoin Core does not use `openssl` - the hashing algorithms are built in to the project.
+Note that the `int SHA256_Final(unsigned char *md, SHA256_CTX *c)` function places the message digest in `md`, which must have space for `SHA256_DIGEST_LENGTH` bytes (i.e. 32) bytes.
 
-Usage:
+Bitcoin Core does not use `openssl` - the hashing algorithms are built in to the project.
+
+### Usage
 Compile the C++ programme from the `cpp` directory. Run `./bin/main`.
 
-Tested under Ubuntu 16.04.
+Enter a public key in hexstring format when requested. The output includes the various stages of Base58Check encoding - this is just for educational purposes.
 
-
-The `int SHA256_Final(unsigned char *md, SHA256_CTX *c)` function places the message digest in `md`, which must have space for `SHA256_DIGEST_LENGTH` bytes (i.e. 32) bytes.
+Run `./bin/p2sh` for the address output only.
 
 References
 ----------
