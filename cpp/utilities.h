@@ -1,16 +1,53 @@
 #ifndef UTILITIES_H
 #define UTILITIES_H
-#endif
 
 #include <iostream>
 #include <iomanip>
 #include <string>
 #include <vector>
 #include <typeinfo>
+#include <openssl/sha.h>
+#include <openssl/ripemd.h>
+#include <algorithm>
 
 namespace utilities {
 
-typedef std::vector<unsigned char> Bytes;
+typedef std::vector<uint8_t> Bytes;
+
+/**
+ *
+ * The signature of `SHA256_Update()` is:
+ * `int SHA256_Update(SHA256_CTX *c, const void *data, size_t len);`
+ * Note that 2nd parameter is a `const void *`. This means that the
+ * caller must provide a pointer to data rather than a std::vector or a
+ * vector iterator. The caller can either pass `v.data()` or `&v[0]`.
+ *
+ * */
+int sha256(const uint8_t preimageBytes[], size_t len, Bytes& res)
+{
+	SHA256_CTX sha256;
+	SHA256_Init(&sha256);
+	SHA256_Update(&sha256, preimageBytes, len); 
+	int ret = SHA256_Final(&res[0], &sha256);
+	return ret;
+}
+
+/**
+ * Again note that RIPEMD160_Update receives a pointer to data.
+ * */
+int ripemd160(const uint8_t preimageBytes[], size_t len, Bytes& res)
+{
+	RIPEMD160_CTX ripemd160;
+	RIPEMD160_Init(&ripemd160);
+	RIPEMD160_Update(&ripemd160, preimageBytes, len);
+	int ret = RIPEMD160_Final(&res[0], &ripemd160);
+	return ret;
+}
+
+void switchEndianness(Bytes& b)
+{
+	std::reverse(b.begin(), b.end());
+}
 
 int hexDigitToInt(char digit)
 {
@@ -134,3 +171,4 @@ void printHex(T input)
 }
 
 } // utilities
+#endif
