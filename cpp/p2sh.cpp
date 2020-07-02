@@ -21,8 +21,8 @@ int main()
 	ripemd160(&initialSHA256[0], initialSHA256.size(), ripemd160Hash);
 	
 	// Prepend the version byte
-	ripemd160Hash.insert(std::begin(ripemd160Hash), 0x00);
-	// ripemd160Hash.insert(std::begin(ripemd160Hash), 0xc4);
+	//ripemd160Hash.insert(std::begin(ripemd160Hash), 0x00);
+	ripemd160Hash.insert(std::begin(ripemd160Hash), 0xc4);
 
 	// Perform SHA256 twice  - checksum is the first four bytes of the result.
 	Bytes checksumHash(SHA256_DIGEST_LENGTH);

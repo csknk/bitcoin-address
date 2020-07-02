@@ -6,7 +6,7 @@
 
 static const char* pszBase58 = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"; 
 
-std::string EncodeBase58(const unsigned char* pbegin, const unsigned char* pend)
+std::string EncodeBase58(const uint8_t* pbegin, const uint8_t* pend)
 {
 	// Skip & count leading zeroes.
 	int zeroes = 0;
@@ -17,8 +17,8 @@ std::string EncodeBase58(const unsigned char* pbegin, const unsigned char* pend)
 	}
 	// Allocate enough space in big-endian base58 representation.
 	int size = (pend - pbegin) * 138 / 100 + 1; // log(256) / log(58), rounded up.
-	std::vector<unsigned char> b58(size);
-
+	std::vector<uint8_t> b58(size);
+	
 	// Process the bytes.
 	while (pbegin != pend) {
 		// carry is the current byte value as an int
@@ -29,7 +29,8 @@ std::string EncodeBase58(const unsigned char* pbegin, const unsigned char* pend)
 		// Do not advance the iterator through the results vector if carry == 0 or if i is less than length
 		//
 		// -------------------
-		for (std::vector<unsigned char>::reverse_iterator it = b58.rbegin(); (carry != 0 || i < length) && (it != b58.rend()); it++, i++) {
+		std::vector<uint8_t>::reverse_iterator it;
+		for (it = b58.rbegin(); (carry != 0 || i < length) && (it != b58.rend()); it++, i++) {
 			carry += 256 * (*it);
 			// Set this elemend of the b58 vector to the remainder of 
 			*it = carry % 58;
@@ -41,7 +42,7 @@ std::string EncodeBase58(const unsigned char* pbegin, const unsigned char* pend)
 		pbegin++;
 	}
 	// Skip leading zeroes in base58 result.
-	std::vector<unsigned char>::iterator it = b58.begin() + (size - length);
+	std::vector<uint8_t>::iterator it = b58.begin() + (size - length);
 	while (it != b58.end() && *it == 0)
 		it++;
 	// Translate the result into a string.
@@ -53,7 +54,7 @@ std::string EncodeBase58(const unsigned char* pbegin, const unsigned char* pend)
 	return str;
 }
 
-std::string EncodeBase58(const std::vector<unsigned char>& vch)
+std::string EncodeBase58(const std::vector<uint8_t>& vch)
 {
 	return EncodeBase58(vch.data(), vch.data() + vch.size());
 }
